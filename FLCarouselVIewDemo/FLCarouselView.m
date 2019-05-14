@@ -12,18 +12,16 @@
 
 #define kFileManager [NSFileManager defaultManager]
 
-typedef NS_ENUM(NSUInteger, Direction) {
-    
-    DirectionNone,         // 无方向变化
-    DirectionToLeft,         // 向左滑
-    DirectionToRight         // 向右滑
-    
+typedef NS_ENUM(NSUInteger, CarouselViewDirection) {
+    CarouselViewDirectionNone,          //无方向变化
+    CarouselViewDirectionToLeft,        //向左滑
+    CarouselViewDirectionToRight        //向右滑
 };
 
 @interface FLCarouselView ()<UIScrollViewDelegate>
 
 //滑动反向
-@property (nonatomic, assign) Direction direction;
+@property (nonatomic, assign) CarouselViewDirection direction;
 //底部scrollview
 @property (nonatomic, strong) UIScrollView *scrollView;
 //当前图片
@@ -97,8 +95,7 @@ static NSString *cachePath = @""; //沙盒缓存路径
     }
     self.currentImg.image = _images[_currentIndex];
     self.pageControl.numberOfPages = _images.count;
-    [self layoutSubviews];
-
+    [self setNeedsLayout];
 }
 
 
@@ -180,7 +177,7 @@ static NSString *cachePath = @""; //沙盒缓存路径
     if (CGSizeEqualToSize(CGSizeZero, scrollView.contentSize)) return;
     // 判断滑动方向
     CGFloat offsetX = scrollView.contentOffset.x;
-    self.direction = offsetX > self.width ? DirectionToLeft : DirectionToRight;
+    self.direction = offsetX > self.width ? CarouselViewDirectionToLeft : CarouselViewDirectionToRight;
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -207,14 +204,14 @@ static NSString *cachePath = @""; //沙盒缓存路径
     // 未改变直接返回
     if (change[NSKeyValueChangeNewKey] == change[NSKeyValueChangeOldKey]) return;
     // 向右侧滑动时
-    if ([change[NSKeyValueChangeNewKey] integerValue] == DirectionToRight) {
+    if ([change[NSKeyValueChangeNewKey] integerValue] == CarouselViewDirectionToRight) {
         self.nextImg.frame = CGRectMake(0, 0, self.width, self.height);
         self.nextIndex = self.currentIndex - 1;
         if (self.nextIndex < 0) {
            self.nextIndex = self.images.count - 1;
         }
     // 向左侧滑动时
-    }else if ([change[NSKeyValueChangeNewKey] integerValue] == DirectionToLeft){
+    }else if ([change[NSKeyValueChangeNewKey] integerValue] == CarouselViewDirectionToLeft){
         self.nextImg.frame = CGRectMake(CGRectGetMaxX(self.currentImg.frame), 0, self.width, self.height);
         self.nextIndex = (self.currentIndex + 1) % self.imgArray.count;
     }
@@ -378,7 +375,5 @@ float durationWithSourceAtIndex(CGImageSourceRef source, NSUInteger index){
     CFRelease(propertiesRef);
     return duration;
 }
-
-
 
 @end
